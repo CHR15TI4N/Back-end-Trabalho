@@ -31,9 +31,18 @@ const updateReceita = (id, receita) => {
     })
 }
 
+const deleteReceita = (id) => {
+    return prisma.receitas.delete({
+        where: {
+            id,
+        }
+    });
+}
+
 module.exports = {
     saveReceitas,
     getAllReceitas,
     getReceitasById,
-    updateReceita
+    updateReceita,
+    deleteReceita
 }

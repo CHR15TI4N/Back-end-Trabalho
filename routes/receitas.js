@@ -1,6 +1,5 @@
 const express = require("express");
-const {saveReceitas, getAllReceitas, getReceitasById, updateReceita} = require("../database/receitas");
-const { receitas } = require("../database/prisma");
+const {saveReceitas, getAllReceitas, getReceitasById, updateReceita, deleteReceita} = require("../database/receitas");
 const router = express.Router();
 
 router.get("/receitas", async (req, res) => {
@@ -25,9 +24,9 @@ router.post("/receitas", async (req, res) => {
         descricao: req.body.descricao,
         tempPreparo: req.body.tempPreparo
     }
-    const savedProduct = await saveReceitas(newReceitas);
+    const savedReceita = await saveReceitas(newReceitas);
     res.json({
-        receita: savedProduct
+        receita: savedReceita
     })
 })
 
@@ -42,6 +41,12 @@ router.put("/receitas/:id", async (req, res) => {
     res.json({
         receita: updatedReceita
     })
+})
+
+router.delete("/receitas/:id", async (req, res) => {
+    const id = Number(req.params.id);
+    await deleteReceita(id);
+    res.status(204).send();
 })
 
 module.exports = {
