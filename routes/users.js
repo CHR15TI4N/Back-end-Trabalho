@@ -2,12 +2,18 @@ const express = require("express");
 const { findUserByEmail, saveUser } = require("../database/users");
 const bcrypt = require("bcrypt");
 const z = require("zod");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 
 const userSchema = z.object({
     name: z.string().min(3),
     email: z.string().email(),
     password: z.string().min(6),
+})
+
+const loginSchema = z.object({
+    email: z.string().email(),
+    password: z.string(),
 })
 
 router.post("/register", async (req, res) => {
@@ -30,14 +36,43 @@ router.post("/register", async (req, res) => {
         });
       } catch (err) {
         if (err instanceof z.ZodError)
-        return res.status(422).json({
+            return res.status(422).json({
             message: err.errors,
-        });
-        res.status(500).json({
-            message: "Server error",
-        });
-      }
+            });
+            res.status(500).json({
+                message: "Server error",
+            });
+        }
     });
+
+    router.get("/login", async (req, res) => {
+        try {
+            const data = loginSchema.parse(req.body);
+    
+            const user = await findUserByEmail(data.email);
+            if (!user) return res.status(401).send();
+            const isSamePassword = bcrypt.compareSync(data.password, user.password);
+            if(!user) return res.status(401).send();
+    
+            const token = jwt.sign({
+                userId: user.id
+            },
+            process.env.SECRET
+            );
+            res.json({
+                token
+            })
+        
+        }catch (error) {
+            if (err instanceof z.ZodError)
+            return res.status(422).json({
+                message: err.errors,
+            });
+            res.status(500).json({
+                message: "Server error",
+            });
+        } 
+    })
 
 module.exports = {
     router
