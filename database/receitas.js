@@ -1,24 +1,22 @@
 const prisma = require("./prisma");
 
-const getAllReceitas = (receitas) => {
+const getAllReceitas = (userId) => {
     return prisma.receitas.findMany({
         where: {
-            receitas
+            userId
         }
     })
 }
 
-const getReceitasById = (id) => {
-    return prisma.receitas.findFirst({
-        where: {
-            id
-        }
-    })
-}
 
-const saveReceitas = (receita) => {
+const saveReceitas = (receitas, userId) => {
     return prisma.receitas.create({
-        data: receita
+        data: {
+            name: receitas.name,
+            descricao: receitas.descricao,
+            tempPreparo: receitas.tempPreparo,
+            userId: userId
+        }
     })
 }
 
@@ -42,7 +40,6 @@ const deleteReceita = (id) => {
 module.exports = {
     saveReceitas,
     getAllReceitas,
-    getReceitasById,
     updateReceita,
     deleteReceita
 }

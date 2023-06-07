@@ -11,10 +11,10 @@ const userSchema = z.object({
     password: z.string().min(6),
 })
 
-const loginSchema = z.object({
+const LoginSchema = z.object({
     email: z.string().email(),
     password: z.string(),
-})
+});
 
 router.post("/register", async (req, res) => {
     try {
@@ -45,34 +45,33 @@ router.post("/register", async (req, res) => {
         }
     });
 
-    router.get("/login", async (req, res) => {
+    router.post("/login", async (req, res) => {
         try {
-            const data = loginSchema.parse(req.body);
-    
+            const data = LoginSchema.parse(req.body);
             const user = await findUserByEmail(data.email);
             if (!user) return res.status(401).send();
             const isSamePassword = bcrypt.compareSync(data.password, user.password);
-            if(!user) return res.status(401).send();
-    
-            const token = jwt.sign({
-                userId: user.id
+            if (!isSamePassword) return res.status(401).send();
+            const token = jwt.sign(
+            {
+                userId: user.id,
             },
-            process.env.SECRET
+                process.env.SECRET
             );
             res.json({
-                token
-            })
-        
-        }catch (error) {
-            if (err instanceof z.ZodError)
-            return res.status(422).json({
-                message: err.errors,
+                token,
             });
+            } catch (error) {
+                if (error instanceof z.ZodError) {
+                    return res.status(422).json({
+                        message: error.errors,
+                    });
+                }
             res.status(500).json({
-                message: "Server error",
+                message: "server error",
             });
-        } 
-    })
+        }
+    });
 
 module.exports = {
     router

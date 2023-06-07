@@ -10,17 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model receitas {
+model Receitas {
   id Int @id @default(autoincrement())
   name String
   descricao String
   tempPreparo String
+  user Users @relation(fields: [userId], references: [id])
+  userId Int
 }
 
-model users {
+model Users {
   id Int @id @default(autoincrement())
   name String
   email String @unique
-  password String
+  password String 
+  Receitas Receitas[]
 }
+
 
